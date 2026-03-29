@@ -1,167 +1,336 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HUD</title>
-    <style>
-      :root {
-        color-scheme: dark;
-        --bg: #131313;
-        --panel: #1c1b1b;
-        --recessed: #0e0e0e;
-        --text: #bccbb9;
-        --display: #e5e2e1;
-        --muted: #869585;
-        --accent: #2cee00;
-        --accent-bright: #79ff5b;
-      }
+<!DOCTYPE html>
 
-      * {
-        box-sizing: border-box;
-      }
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HUD — The Cognitive Cockpit</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-container": "#ff9594",
+                        "outline-variant": "#3d4a3d",
+                        "outline": "#869585",
+                        "primary-container": "#25cf00",
+                        "on-primary-fixed-variant": "#095300",
+                        "tertiary-fixed": "#ffdad8",
+                        "on-surface": "#e5e2e1",
+                        "secondary": "#47e34e",
+                        "on-tertiary-container": "#7c272a",
+                        "on-tertiary-fixed-variant": "#7f292c",
+                        "inverse-primary": "#106e00",
+                        "on-tertiary": "#601218",
+                        "error-container": "#93000a",
+                        "on-primary": "#053900",
+                        "surface-variant": "#353534",
+                        "primary-fixed": "#79ff5b",
+                        "surface-dim": "#131313",
+                        "inverse-surface": "#e5e2e1",
+                        "primary": "#2cee00",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface": "#131313",
+                        "error": "#ffb4ab",
+                        "surface-container": "#201f1f",
+                        "on-primary-container": "#095100",
+                        "secondary-fixed": "#73ff6f",
+                        "surface-tint": "#2ae500",
+                        "on-primary-fixed": "#022100",
+                        "on-tertiary-fixed": "#410007",
+                        "tertiary-fixed-dim": "#ffb3b1",
+                        "background": "#131313",
+                        "on-background": "#e5e2e1",
+                        "surface-container-high": "#2a2a2a",
+                        "on-secondary": "#003906",
+                        "on-secondary-fixed-variant": "#00530d",
+                        "primary-fixed-dim": "#2ae500",
+                        "on-secondary-fixed": "#002202",
+                        "on-error": "#690005",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#47e34e",
+                        "on-secondary-container": "#004409",
+                        "on-surface-variant": "#bccbb9",
+                        "secondary-container": "#02bd2b",
+                        "inverse-on-surface": "#313030",
+                        "surface-bright": "#3a3939",
+                        "tertiary": "#ffbebc",
+                        "surface-container-highest": "#353534"
+                    },
+                    fontFamily: {
+                        "mono": ["JetBrains Mono", "monospace"],
+                        "headline": ["JetBrains Mono", "monospace"],
+                        "body": ["JetBrains Mono", "monospace"],
+                        "label": ["JetBrains Mono", "monospace"]
+                    },
+                    borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "0px" },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #131313;
+            color: #bccbb9;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: crosshair;
+        }
 
-      body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: "JetBrains Mono", "SF Mono", "Fira Code", "Cascadia Code", monospace;
-        background:
-          radial-gradient(circle at top, rgba(44, 238, 0, 0.12), transparent 28rem),
-          var(--bg);
-        color: var(--text);
-      }
+        /* CRT Scanline Overlay */
+        .scanline-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.1) 50%
+            ), linear-gradient(
+                90deg, 
+                rgba(255, 0, 0, 0.02), 
+                rgba(0, 255, 0, 0.01), 
+                rgba(0, 0, 255, 0.02)
+            );
+            background-size: 100% 3px, 3px 100%;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.4;
+        }
 
-      body::after {
-        content: "";
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-        background: repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 1px,
-          rgba(0, 0, 0, 0.02) 1px,
-          rgba(0, 0, 0, 0.02) 2px
-        );
-      }
+        .hud-glow {
+            text-shadow: 0 0 8px rgba(44, 238, 0, 0.6);
+        }
 
-      main {
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        padding: 2rem;
-      }
+        .hud-border-glow {
+            box-shadow: 0 0 12px rgba(44, 238, 0, 0.2);
+        }
 
-      .shell {
-        width: min(68rem, 100%);
-        border: 1px solid rgba(61, 74, 61, 0.2);
-        background: linear-gradient(180deg, rgba(28, 27, 27, 0.95), rgba(14, 14, 14, 0.98));
-        padding: 3rem;
-      }
+        .reticle-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-      .eyebrow,
-      .links a {
-        color: var(--accent);
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        text-decoration: none;
-      }
+        .reticle-part {
+            position: absolute;
+            border: 2px solid #2cee00;
+        }
 
-      h1 {
-        margin: 0.75rem 0 1rem;
-        color: var(--display);
-        font-size: clamp(2rem, 8vw, 4.75rem);
-        line-height: 0.95;
-        text-transform: uppercase;
-      }
-
-      p {
-        max-width: 42rem;
-        color: var(--text);
-        line-height: 1.7;
-      }
-
-      .muted {
-        color: var(--muted);
-      }
-
-      .cta-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-top: 2rem;
-      }
-
-      .button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 12rem;
-        padding: 0.9rem 1.2rem;
-        border: 1px solid var(--accent);
-        color: var(--accent);
-        text-transform: uppercase;
-        letter-spacing: 0.16em;
-        text-decoration: none;
-      }
-
-      .button.secondary {
-        border-color: rgba(61, 74, 61, 0.45);
-        color: var(--text);
-      }
-
-      .grid {
-        display: grid;
-        gap: 1rem;
-        grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-        margin-top: 2.5rem;
-      }
-
-      .card {
-        background: rgba(28, 27, 27, 0.7);
-        border: 1px solid rgba(61, 74, 61, 0.2);
-        padding: 1rem;
-      }
-
-      .card strong {
-        color: var(--display);
-        display: block;
-        margin-bottom: 0.5rem;
-        text-transform: uppercase;
-      }
+        /* Custom scrollbar for tactical feel */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0e0e0e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2cee00;
+        }
     </style>
-  </head>
-  <body>
-    <main>
-      <section class="shell">
-        <div class="eyebrow">HUD Systems</div>
-        <h1>See Through the Fog</h1>
-        <p>
-          HUD is a cognitive cockpit for traversal thinkers: capture signals, move across layers,
-          and keep context under pressure without losing the thread.
+</head>
+<body class="selection:bg-primary selection:text-on-primary">
+<div class="scanline-overlay"></div>
+<!-- Navigation (Shared Component) -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-[#131313] bg-opacity-90 backdrop-blur-md">
+<div class="text-[#2cee00] font-black text-xl tracking-[0.2em] font-mono uppercase">HUD</div>
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-[#2cee00] border-b-2 border-[#2cee00] pb-1 font-mono uppercase tracking-tighter text-sm transition-all duration-75" href="#">FEATURES</a>
+<a class="text-[#BCCBB9] opacity-70 font-mono uppercase tracking-tighter text-sm hover:text-[#79FF5B] hover:bg-[#1C1B1B] transition-all duration-75" href="#">GITHUB</a>
+<button class="bg-transparent border border-[#2cee00] text-[#2cee00] px-4 py-1 font-mono uppercase tracking-tighter text-sm scale-95 active:scale-90 transition-all">DOWNLOAD</button>
+</div>
+</nav>
+<main class="pt-24">
+<!-- Hero Section -->
+<section class="min-h-screen flex flex-col items-center justify-center px-6 text-center">
+<div class="mb-12 reticle-container">
+<!-- CS Style Reticle -->
+<div class="reticle-part w-full h-0.5 top-1/2 left-0 -translate-y-1/2"></div>
+<div class="reticle-part h-full w-0.5 left-1/2 top-0 -translate-x-1/2"></div>
+<div class="absolute w-6 h-6 border-2 border-[#2cee00]"></div>
+<div class="absolute w-24 h-24 border border-[#2cee00] opacity-20"></div>
+<span class="material-symbols-outlined text-[#2cee00] text-4xl font-bold" style="font-variation-settings: 'FILL' 1;">target</span>
+</div>
+<h1 class="text-7xl md:text-9xl font-black text-[#2cee00] tracking-[0.3em] hud-glow mb-4">HUD</h1>
+<p class="text-xl md:text-2xl text-[#33CC66] font-mono tracking-widest uppercase mb-12">See through the fog.</p>
+<div class="flex flex-col items-center gap-6">
+<button class="group relative px-10 py-4 border border-[#2cee00] text-[#2cee00] font-bold tracking-widest uppercase transition-all hover:bg-[#2cee00] hover:text-[#053900] hud-border-glow">
+<span class="relative z-10">&gt; DOWNLOAD FOR WINDOWS</span>
+</button>
+<p class="text-[10px] text-outline tracking-[0.2em] font-mono uppercase">
+                    Free. Local. Private. No account needed.
+                </p>
+</div>
+<!-- Coordinate Decals -->
+<div class="absolute left-6 bottom-32 hidden lg:block text-[10px] text-outline-variant font-mono">
+                LAT: 47.6062 N<br/>
+                LNG: 122.3321 W<br/>
+                ALT: 42.000 FT
+            </div>
+<div class="absolute right-6 bottom-32 hidden lg:block text-[10px] text-outline-variant font-mono text-right">
+                SYS_VER: 1.0.4-BETA<br/>
+                KERNEL: MONOLITHIC<br/>
+                UPTIME: 99.99%
+            </div>
+</section>
+<!-- Bento Grid: What it does -->
+<section class="max-w-7xl mx-auto px-6 py-24">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-1">
+<!-- Card 1 -->
+<div class="bg-[#1C1B1B] p-8 border border-outline-variant/20 relative group">
+<div class="text-[10px] text-[#2cee00] mb-8 font-mono tracking-widest uppercase">MOD_001 // MAPPING</div>
+<h3 class="text-2xl font-bold text-on-surface mb-4 uppercase">Map your thinking</h3>
+<p class="text-on-surface-variant leading-relaxed mb-8">
+                        Create stacks of abstraction layers. Switch between Legal, product, and research frames instantly.
+                    </p>
+<div class="h-1 bg-outline-variant/30 w-full overflow-hidden">
+<div class="h-full bg-[#2cee00] w-1/3 transition-all group-hover:w-full"></div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-[#1C1B1B] p-8 border border-outline-variant/20 relative group">
+<div class="text-[10px] text-[#2cee00] mb-8 font-mono tracking-widest uppercase">MOD_002 // CAPTURE</div>
+<h3 class="text-2xl font-bold text-on-surface mb-4 uppercase">Capture without leaving</h3>
+<p class="text-on-surface-variant leading-relaxed mb-8">
+<span class="bg-surface-container-highest px-2 py-1 text-primary">Ctrl + Shift + Space</span> global hotkey. Capture thoughts without breaking tactical focus.
+                    </p>
+<div class="h-1 bg-outline-variant/30 w-full overflow-hidden">
+<div class="h-full bg-[#2cee00] w-1/2 transition-all group-hover:w-full"></div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-[#1C1B1B] p-8 border border-outline-variant/20 relative group">
+<div class="text-[10px] text-[#2cee00] mb-8 font-mono tracking-widest uppercase">MOD_003 // GUIDANCE</div>
+<h3 class="text-2xl font-bold text-on-surface mb-4 uppercase">AI Co-pilot</h3>
+<p class="text-on-surface-variant leading-relaxed mb-8">
+                        The co-pilot sees your cursor position and active layers. Context-aware intelligence deployed locally.
+                    </p>
+<div class="h-1 bg-outline-variant/30 w-full overflow-hidden">
+<div class="h-full bg-[#2cee00] w-3/4 transition-all group-hover:w-full"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- The Cockpit Mockup -->
+<section class="py-24 bg-[#0E0E0E]">
+<div class="max-w-7xl mx-auto px-6">
+<div class="mb-12 border-l-4 border-[#2cee00] pl-6">
+<h2 class="text-4xl font-black text-[#2cee00] tracking-tighter uppercase mb-2">The Cockpit</h2>
+<p class="text-on-surface-variant uppercase tracking-widest text-sm">Interface Schematic Alpha-01</p>
+</div>
+<div class="relative border border-outline-variant/40 bg-[#131313] p-1 flex flex-col md:flex-row gap-1 aspect-video overflow-hidden">
+<!-- Left Panel: Stack -->
+<div class="md:w-1/4 bg-[#1C1B1B] p-4 flex flex-col gap-4">
+<div class="text-[9px] text-outline uppercase font-bold tracking-widest">Stack_Explorer</div>
+<div class="space-y-2">
+<div class="h-8 bg-primary/10 border-l-2 border-primary flex items-center px-3 text-[11px] text-primary">RESEARCH_CORE</div>
+<div class="h-8 bg-surface-container flex items-center px-3 text-[11px] text-on-surface-variant">PRODUCT_SPEC</div>
+<div class="h-8 bg-surface-container flex items-center px-3 text-[11px] text-on-surface-variant">LEGAL_REVIEWS</div>
+</div>
+</div>
+<!-- Center Panel: Map -->
+<div class="md:w-2/4 bg-[#131313] relative border-x border-outline-variant/20 overflow-hidden">
+<div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#2cee00 1px, transparent 0); background-size: 20px 20px;"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-primary/20 flex items-center justify-center">
+<div class="w-2 h-2 bg-primary animate-pulse"></div>
+</div>
+<div class="absolute bottom-4 left-4 text-[9px] text-primary font-mono tracking-widest">TRAVERSAL_ACTIVE</div>
+</div>
+<!-- Right Panel: AI/Captures -->
+<div class="md:w-1/4 bg-[#1C1B1B] p-4 flex flex-col gap-4">
+<div class="text-[9px] text-outline uppercase font-bold tracking-widest">Co_Pilot_v4</div>
+<div class="flex-grow space-y-4">
+<div class="p-2 border border-outline-variant/40 text-[10px] leading-tight text-on-surface-variant">
+<span class="text-primary">&gt;</span> Analyzing layer overlap...
+                            </div>
+<div class="p-2 bg-surface-container-lowest text-[10px] leading-tight text-[#2cee00]">
+                                Suggested: Connect 'User feedback' to 'Architecture V2'
+                            </div>
+</div>
+</div>
+</div>
+<p class="mt-8 text-center font-mono text-sm tracking-widest text-on-surface-variant uppercase">
+                    Three panels. Every layer visible. The cursor never stops glowing.
+                </p>
+</div>
+</section>
+<!-- Compact Features List -->
+<section class="max-w-4xl mx-auto px-6 py-24">
+<div class="grid grid-cols-2 md:grid-cols-3 gap-y-12 gap-x-8">
+<div>
+<div class="text-[#2cee00] text-xs font-bold mb-2 uppercase">01 // Architecture</div>
+<div class="text-on-surface font-bold uppercase text-sm tracking-tight">Traversal Stacks</div>
+</div>
+<div>
+<div class="text-[#2cee00] text-xs font-bold mb-2 uppercase">02 // Storage</div>
+<div class="text-on-surface font-bold uppercase text-sm tracking-tight">Local SQLite</div>
+</div>
+<div>
+<div class="text-[#2cee00] text-xs font-bold mb-2 uppercase">03 // Intelligence</div>
+<div class="text-on-surface font-bold uppercase text-sm tracking-tight">MCP SERVER (CLAUDE/GPT)</div>
+</div>
+<div>
+<div class="text-[#2cee00] text-xs font-bold mb-2 uppercase">04 // Sensors</div>
+<div class="text-on-surface font-bold uppercase text-sm tracking-tight">Screenpipe Integration</div>
+</div>
+<div>
+<div class="text-[#2cee00] text-xs font-bold mb-2 uppercase">05 // Hardware</div>
+<div class="text-on-surface font-bold uppercase text-sm tracking-tight">3-Monitor Aware</div>
+</div>
+<div>
+<div class="text-[#2cee00] text-xs font-bold mb-2 uppercase">06 // OS Native</div>
+<div class="text-on-surface font-bold uppercase text-sm tracking-tight">Window Snapping</div>
+</div>
+<div>
+<div class="text-[#2cee00] text-xs font-bold mb-2 uppercase">07 // Input</div>
+<div class="text-on-surface font-bold uppercase text-sm tracking-tight">Global Capture</div>
+</div>
+<div>
+<div class="text-[#2cee00] text-xs font-bold mb-2 uppercase">08 // Flow</div>
+<div class="text-on-surface font-bold uppercase text-sm tracking-tight">Focus State Tracking</div>
+</div>
+<div>
+<div class="text-[#2cee00] text-xs font-bold mb-2 uppercase">09 // UI</div>
+<div class="text-on-surface font-bold uppercase text-sm tracking-tight">Resizable Panels</div>
+</div>
+</div>
+</section>
+<!-- Manifesto -->
+<section class="max-w-5xl mx-auto px-6 py-32 border-y border-outline-variant/10">
+<div class="text-[10px] text-[#2cee00] mb-12 text-center tracking-[0.4em] uppercase">Ref: FOR TRAVERSAL THINKERS</div>
+<p class="text-3xl md:text-5xl font-bold text-on-surface leading-[1.2] uppercase text-center">
+                Your brain moves between abstraction layers — from raw evidence to grand theory.
+            </p>
+<div class="mt-16 max-w-2xl mx-auto text-center space-y-8">
+<p class="text-on-surface-variant font-mono text-lg leading-relaxed">
+                    Most tools force you to stay on one level. HUD gives you the map, the cursor, and the trail.
+                </p>
+<p class="text-[#2cee00] font-black text-2xl tracking-tighter hud-glow uppercase">
+                    You were never distracted. You were traversing.
+                </p>
+</div>
+</section>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="w-full py-12 px-6 flex flex-col items-center gap-6 border-t border-[#3D4A3D]/20 bg-[#131313]">
+<div class="text-[#2cee00] font-bold font-mono tracking-widest uppercase text-xs">BUILT BY SOMEONE WHO NEEDED IT.</div>
+<div class="flex gap-8">
+<a class="text-[#BCCBB9] hover:text-[#2cee00] transition-colors font-mono text-[10px] tracking-widest uppercase" href="#">GITHUB</a>
+<a class="text-[#BCCBB9] hover:text-[#2cee00] transition-colors font-mono text-[10px] tracking-widest uppercase" href="#">OPEN-SOURCE-DISCLAIMER</a>
+</div>
+<p class="text-[#BCCBB9] opacity-50 font-mono text-[9px] tracking-[0.2em] uppercase max-w-lg text-center leading-loose">
+            HUD is free, open source, and runs entirely on your machine. All cognitive data remains local to your hardware. No telemetry. No cloud.
         </p>
-        <p class="muted">
-          Desktop-first. Monitor-aware. Built to stay readable and predictable during long sessions.
-        </p>
-        <div class="cta-row">
-          <a class="button" href="https://github.com/hud-systems/hud">HUD Desktop</a>
-          <a class="button secondary" href="https://github.com/hud-systems">GitHub Org</a>
+<div class="mt-4 text-[#3D4A3D] font-mono text-[8px]">
+            © 2024 HUD_COCKPIT_SYSTEMS // ALL RIGHTS RESERVED
         </div>
-        <div class="grid">
-          <article class="card">
-            <strong>HUD</strong>
-            The cockpit.
-          </article>
-          <article class="card">
-            <strong>Gather</strong>
-            Modular MCP operating platform.
-          </article>
-          <article class="card">
-            <strong>OwnCase</strong>
-            Legal evidence workbench.
-          </article>
-        </div>
-      </section>
-    </main>
-  </body>
-</html>
+</footer>
+</body></html>
