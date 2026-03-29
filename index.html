@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HUD</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #131313;
+        --panel: #1c1b1b;
+        --recessed: #0e0e0e;
+        --text: #bccbb9;
+        --display: #e5e2e1;
+        --muted: #869585;
+        --accent: #2cee00;
+        --accent-bright: #79ff5b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "JetBrains Mono", "SF Mono", "Fira Code", "Cascadia Code", monospace;
+        background:
+          radial-gradient(circle at top, rgba(44, 238, 0, 0.12), transparent 28rem),
+          var(--bg);
+        color: var(--text);
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 1px,
+          rgba(0, 0, 0, 0.02) 1px,
+          rgba(0, 0, 0, 0.02) 2px
+        );
+      }
+
+      main {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+      }
+
+      .shell {
+        width: min(68rem, 100%);
+        border: 1px solid rgba(61, 74, 61, 0.2);
+        background: linear-gradient(180deg, rgba(28, 27, 27, 0.95), rgba(14, 14, 14, 0.98));
+        padding: 3rem;
+      }
+
+      .eyebrow,
+      .links a {
+        color: var(--accent);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        text-decoration: none;
+      }
+
+      h1 {
+        margin: 0.75rem 0 1rem;
+        color: var(--display);
+        font-size: clamp(2rem, 8vw, 4.75rem);
+        line-height: 0.95;
+        text-transform: uppercase;
+      }
+
+      p {
+        max-width: 42rem;
+        color: var(--text);
+        line-height: 1.7;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 12rem;
+        padding: 0.9rem 1.2rem;
+        border: 1px solid var(--accent);
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        text-decoration: none;
+      }
+
+      .button.secondary {
+        border-color: rgba(61, 74, 61, 0.45);
+        color: var(--text);
+      }
+
+      .grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+        margin-top: 2.5rem;
+      }
+
+      .card {
+        background: rgba(28, 27, 27, 0.7);
+        border: 1px solid rgba(61, 74, 61, 0.2);
+        padding: 1rem;
+      }
+
+      .card strong {
+        color: var(--display);
+        display: block;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="shell">
+        <div class="eyebrow">HUD Systems</div>
+        <h1>See Through the Fog</h1>
+        <p>
+          HUD is a cognitive cockpit for traversal thinkers: capture signals, move across layers,
+          and keep context under pressure without losing the thread.
+        </p>
+        <p class="muted">
+          Desktop-first. Monitor-aware. Built to stay readable and predictable during long sessions.
+        </p>
+        <div class="cta-row">
+          <a class="button" href="https://github.com/hud-systems/hud">HUD Desktop</a>
+          <a class="button secondary" href="https://github.com/hud-systems">GitHub Org</a>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <strong>HUD</strong>
+            The cockpit.
+          </article>
+          <article class="card">
+            <strong>Gather</strong>
+            Modular MCP operating platform.
+          </article>
+          <article class="card">
+            <strong>OwnCase</strong>
+            Legal evidence workbench.
+          </article>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
